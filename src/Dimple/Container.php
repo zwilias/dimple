@@ -29,20 +29,16 @@ class Container extends \Pimple\Container
 
     public function offsetGet($id)
     {
-        if (($split = strpos($id, '::')) !== false) {
-            $this->loadNameSpace(substr($id, 0, $split));
-        }
-
-        return $this->pimpleContainer->offsetGet($id);
+        return $this->pimpleContainer->offsetGet(
+            $this->ensureNamespacesLoaded($id)
+        );
     }
 
     public function offsetExists($id)
     {
-        if (($split = strpos($id, '::')) !== false) {
-            $this->loadNameSpace(substr($id, 0, $split));
-        }
-
-        return $this->pimpleContainer->offsetExists($id);
+        return $this->pimpleContainer->offsetExists(
+            $this->ensureNamespacesLoaded($id)
+        );
     }
 
     public function offsetUnset($id)
@@ -62,20 +58,18 @@ class Container extends \Pimple\Container
 
     public function raw($id)
     {
-        if (($split = strpos($id, '::')) !== false) {
-            $this->loadNameSpace(substr($id, 0, $split));
-        }
-
-        return $this->pimpleContainer->raw($id);
+        return $this->pimpleContainer->raw(
+            $this->ensureNamespacesLoaded($id)
+        );
     }
 
     public function extend($id, $callable)
     {
-        if (($split = strpos($id, '::')) !== false) {
-            $this->loadNameSpace(substr($id, 0, $split));
-        }
+        $this->ensureNamespacesLoaded($id);
 
-        return $this->pimpleContainer->extend($id, $callable);
+        return $this->pimpleContainer->extend(
+            $this->ensureNamespacesLoaded($id), $callable
+        );
     }
 
     public function keys()
@@ -95,6 +89,14 @@ class Container extends \Pimple\Container
                 throw new \RuntimeException('Can\'t redefine serviceProvider for namespace ' . $nameSpace);
             }
 
+            if (!is_string($nameSpace)) {
+                throw new \RuntimeException('Namespace must be a string');
+            }
+
+            if (! $serviceProvider instanceof ServiceProviderInterface) {
+                throw new \RuntimeException('ServiceProviderProvider must provide map of ServiceProviders');
+            }
+
             $this->namespaceProviders[$nameSpace] = $serviceProvider;
         }
     }
@@ -111,5 +113,14 @@ class Container extends \Pimple\Container
 
         $this->namespaceProviders[$name]->register($this);
         $this->loadedNamespaces[] = $name;
+    }
+
+    protected function ensureNamespacesLoaded($id)
+    {
+        if (($split = strpos($id, '::')) !== false) {
+            $this->loadNameSpace(substr($id, 0, $split));
+        }
+
+        return $id;
     }
 }

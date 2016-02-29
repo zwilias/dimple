@@ -159,6 +159,42 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException \RuntimeException
+     */
+    public function testRegisterServiceProviderProvider_NameSpaceMustBeString()
+    {
+        $serviceProviderProphecy = $this->prophet->prophesize('\Pimple\ServiceProviderInterface');
+
+        $serviceProviderProviderProphecy = $this->prophet->prophesize('\Dimple\ServiceProviderProviderInterface');
+        $serviceProviderProviderProphecy
+            ->provideServiceProviders(Argument::exact($this->container))
+            ->shouldBeCalled()
+            ->willReturn(array(
+                false => $serviceProviderProphecy->reveal()
+            ));
+
+
+        $this->container->registerServiceProviderProvider($serviceProviderProviderProphecy->reveal());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testRegisterServiceProviderProvider_provideServiceProvidersMustProvideServiceProviders()
+    {
+        $serviceProviderProviderProphecy = $this->prophet->prophesize('\Dimple\ServiceProviderProviderInterface');
+        $serviceProviderProviderProphecy
+            ->provideServiceProviders(Argument::exact($this->container))
+            ->shouldBeCalled()
+            ->willReturn(array(
+                'test' => function () {}
+            ));
+
+
+        $this->container->registerServiceProviderProvider($serviceProviderProviderProphecy->reveal());
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      */
     public function testOffsetGet_unknownNamespace_throwsException()
