@@ -85,17 +85,7 @@ class Container extends \Pimple\Container
     public function registerServiceProviderProvider(ServiceProviderProviderInterface $providerProvider)
     {
         foreach ($providerProvider->provideServiceProviders($this) as $nameSpace => $serviceProvider) {
-            if (isset($this->namespaceProviders[$nameSpace])) {
-                throw new \RuntimeException('Can\'t redefine serviceProvider for namespace ' . $nameSpace);
-            }
-
-            if (!is_string($nameSpace)) {
-                throw new \RuntimeException('Namespace must be a string');
-            }
-
-            if (! $serviceProvider instanceof ServiceProviderInterface) {
-                throw new \RuntimeException('ServiceProviderProvider must provide map of ServiceProviders');
-            }
+            $this->checkNamespaceProvider($nameSpace, $serviceProvider);
 
             $this->namespaceProviders[$nameSpace] = $serviceProvider;
         }
@@ -122,5 +112,20 @@ class Container extends \Pimple\Container
         }
 
         return $id;
+    }
+
+    protected function checkNamespaceProvider($nameSpace, $serviceProvider)
+    {
+        if (isset($this->namespaceProviders[$nameSpace])) {
+            throw new \RuntimeException('Can\'t redefine serviceProvider for namespace ' . $nameSpace);
+        }
+
+        if (!is_string($nameSpace)) {
+            throw new \RuntimeException('Namespace must be a string');
+        }
+
+        if (!$serviceProvider instanceof ServiceProviderInterface) {
+            throw new \RuntimeException('ServiceProviderProvider must provide map of ServiceProviders');
+        }
     }
 }
