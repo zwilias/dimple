@@ -1,0 +1,25 @@
+{
+  "name": "zwilias/dimple",
+  "description": "An extension of Pimple, providing ServiceLocatorLocator functionality",
+  "require": {
+    "pimple/pimple": "^3.0",
+    "php": ">=5.3.0"
+  },
+  "require-dev": {
+    "phpspec/prophecy": "^1.6",
+    "phpunit/phpunit": "^5.2",
+    "scrutinizer/ocular": "^1.3"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Ilias Van Peer",
+      "email": "ilias@idlemonkeys.net"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "Dimple": "src/"
+    }
+  }
+}
